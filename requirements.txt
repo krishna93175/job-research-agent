@@ -3,3 +3,4 @@ requests
 tavily-python
 groq
 openai
+openai-agents
