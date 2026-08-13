@@ -32,6 +32,7 @@ jobs:
       - name: Run deterministic tests
         run: |
           python test_url_cleaner.py
+          python test_requirements.py
           python test_requirements_filter.py
           python test_deduplicator.py
           python test_strategy.py

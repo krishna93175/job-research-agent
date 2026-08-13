@@ -1,29 +1,43 @@
-from requirement_parser import parse_requirements
+from requirements import JobRequirements
 from search_strategy import build_search_queries
 
 
-request = """
-Find remote junior data analyst jobs in India.
-I have about 1 year of experience and know Excel and SQL.
-I prefer full-time positions.
-"""
-
-
-job_requirements, candidate_profile = parse_requirements(
-    request
+requirements = JobRequirements(
+    role="Data Analyst",
+    location="India",
+    remote_required=True,
+    hybrid_allowed=True,
+    min_experience_years=0,
+    max_experience_years=2,
+    employment_types=["Full-time"],
+    skills=["Excel", "SQL"],
+    salary_min=None,
+    salary_max=None,
+    salary_currency=None,
+    applicant_country="India",
+    visa_required=False,
+    keywords=[
+        "remote",
+        "junior",
+        "data analyst",
+    ],
 )
 
+queries = build_search_queries(requirements)
 
-queries = build_search_queries(
-    job_requirements
-)
+print("REQUIREMENTS:")
+print(requirements)
 
-
-print("SEARCH QUERIES")
 print()
+print("SEARCH QUERIES:")
 
-for number, query in enumerate(
-    queries,
-    start=1,
-):
-    print(f"{number}. {query}")
+for index, query in enumerate(queries, start=1):
+    print(index, repr(query))
+
+assert queries
+assert any("data analyst" in query.lower() for query in queries)
+assert any("india" in query.lower() for query in queries)
+assert any("remote" in query.lower() for query in queries)
+
+print()
+print("SEARCH STRATEGY TEST: PASSED")
