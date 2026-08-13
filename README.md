@@ -1,140 +1,37 @@
 # AI Job Research Agent
 
-> An open-source AI-powered job research agent that discovers, filters, enriches, analyzes, and ranks job opportunities against a user's requirements and candidate profile.
+> An open-source, modular AI-assisted job research agent that discovers, filters, enriches, analyzes, and ranks job opportunities against structured job requirements and a candidate profile.
 
-This project is designed to be **usable, understandable, extensible, and modifiable by other developers**. It is also a practical learning and engineering project for Python, APIs, web search, LLM integration, structured AI outputs, ranking, testing, Git/GitHub, and open-source development.
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/krishna93175/job-research-agent)](https://github.com/krishna93175/job-research-agent/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/krishna93175/job-research-agent)](https://github.com/krishna93175/job-research-agent/issues)
 
-## Table of Contents
+## Why this project exists
 
-- [What Is This Project?](#what-is-this-project)
-- [Why Does This Project Exist?](#why-does-this-project-exist)
-- [What the Agent Does](#what-the-agent-does)
-- [Example](#example)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Detailed Components](#detailed-components)
-- [Design Principles](#design-principles)
-- [Project Structure](#project-structure)
-- [Technology Stack](#technology-stack)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Environment Variables](#environment-variables)
-- [Running the Project](#running-the-project)
-- [Understanding the Output](#understanding-the-output)
-- [Testing](#testing)
-- [Error Handling](#error-handling)
-- [Known Limitations](#known-limitations)
-- [Security](#security)
-- [Extending the Project](#extending-the-project)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [Learning Goals](#learning-goals)
-- [Open Source Philosophy](#open-source-philosophy)
-- [Disclaimer](#disclaimer)
-- [License](#license)
+Most job-search workflows are repetitive:
 
----
-
-## What Is This Project?
-
-The **AI Job Research Agent** accepts a natural-language job request and turns it into a structured research workflow.
-
-Instead of simply performing a keyword search, it attempts to understand:
-
-- role
-- location
-- remote/hybrid preference
-- experience
-- employment type
-- required skills
-- salary requirements
-- applicant country
-- visa requirements
-- keywords and other constraints
-
-It then discovers jobs from multiple sources, normalizes and deduplicates them, applies deterministic filters, selects promising candidates, enriches those candidates with job-page information where possible, analyzes them with an LLM, and produces ranked results.
-
-The architecture deliberately separates **deterministic software logic** from **AI-based semantic analysis**.
-
----
-
-## Why Does This Project Exist?
-
-Job searching normally requires repeated manual work:
-
-1. Search several platforms.
+1. Search several job platforms.
 2. Open listings.
-3. Check role relevance.
-4. Check location and remote eligibility.
+3. Check whether the role actually matches.
+4. Check location and remote restrictions.
 5. Check experience.
 6. Check skills.
 7. Check employment type.
-8. Check international eligibility and visa information.
-9. Compare suitable jobs.
+8. Investigate international eligibility and visa information.
+9. Compare the remaining jobs.
 
-This project attempts to automate that research process while remaining transparent and modifiable.
+This project turns that research process into a modular pipeline.
 
-It is also an open-source engineering project. Other developers should be able to inspect the implementation, run it, replace providers, add job sources, improve prompts, change ranking logic, add tests, or build a UI on top of the existing pipeline.
+It is **not intended to be a perfect job database or an autonomous application bot**. It is an open-source engineering project for researching job opportunities with a combination of deterministic software and LLM-based semantic analysis.
 
----
-
-## What the Agent Does
-
-```text
-Natural-Language User Request
-            |
-            v
-    Requirement Parser
-            |
-            +--------------------+
-            |                    |
-            v                    v
-   Job Requirements      Candidate Profile
-            |
-            v
-      Search Strategy
-            |
-            v
-       Job Discovery
-        /         \
-       /           \
-      v             v
- Arbeitnow       Web Search
-                    |
-                    v
-            Tavily Discovery
-                    |
-                    v
-       Normalization + Deduplication
-                    |
-                    v
-          Hard Requirement Filtering
-                    |
-                    v
-          Preliminary Deterministic
-                 Scoring
-                    |
-                    v
-            Candidate Selection
-                    |
-                    v
-          Job-Page Enrichment
-                    |
-                    v
-             AI Job Analysis
-                    |
-                    v
-              Final Ranking
-                    |
-                    v
-           Formatted Results
-```
+The project is also designed as a learning and contribution platform. Developers should be able to inspect the code, run it, replace providers, add job sources, change ranking logic, improve prompts, add tests, or build a user interface on top of the existing pipeline.
 
 ---
 
-## Example
+## What it does
 
-A user can provide:
+A user can provide a request such as:
 
 ```text
 Find remote junior data analyst jobs in India,
@@ -142,277 +39,393 @@ full-time, with Excel and SQL.
 I have 1 year of experience.
 ```
 
-The parser can produce:
+The system converts that request into structured information such as:
 
 ```text
+Job requirements
+----------------
 Role: Data Analyst
 Location: India
 Remote: Required
 Employment: Full-time
 Skills: Excel, SQL
-Candidate experience: 1 year
-Keywords: remote, junior, data analyst
+Experience range: 0–2 years
+
+Candidate profile
+-----------------
+Experience: 1 year
+Skills: Excel, SQL
+Current country: India
 ```
 
-The system then discovers jobs, filters them, enriches promising listings, analyzes them, and ranks them.
-
-A typical result contains:
+It then:
 
 ```text
-1. Junior Data Analyst — Example Company
-
-Match: 82/100
-Confidence: High
-Location: India
-Remote: True
-Source: Lever
-
-Why it matches:
-- Requested role appears in the job title.
-- Location matches the request.
-- Remote work is supported.
-- SQL is listed as a required skill.
-
-Concerns:
-- Salary is not provided.
-- Visa sponsorship is not confirmed.
-
-Apply:
-https://example.com/job
+Natural-language request
+          |
+          v
+Requirement parsing
+          |
+          +--------------------+
+          |                    |
+          v                    v
+Job requirements       Candidate profile
+          |
+          v
+Search-query generation
+          |
+          v
+Multi-source discovery
+       /       \
+      /         \
+Arbeitnow    Tavily web search
+      \         /
+       \       /
+        v     v
+Normalization
+          |
+          v
+Deduplication
+          |
+          v
+Hard requirement filtering
+          |
+          v
+Deterministic preliminary scoring
+          |
+          v
+Top candidate selection
+          |
+          v
+Job-page enrichment
+          |
+          v
+Structured AI analysis
+          |
+          v
+Final ranking
+          |
+          v
+Human-readable results
 ```
 
-Actual results vary because job availability and web-search results are dynamic.
+The architecture deliberately keeps deterministic operations separate from AI reasoning.
 
 ---
 
-# Features
+# Core design idea
 
-## Natural-language requirements
+## Don't let the LLM do everything
 
-Users do not need to manually fill a form. The system extracts role, location, remote preference, experience, employment type, skills, salary, applicant country, visa requirements, and keywords.
+The project uses normal Python logic where deterministic behavior is more reliable:
 
-## Candidate profile extraction
+- URL cleaning
+- normalization
+- deduplication
+- query generation
+- hard filtering
+- preliminary scoring
+- orchestration
+- result formatting
 
-The candidate's experience and skills are represented separately from job requirements. For example, `I have 1 year of experience` becomes candidate experience, not an automatic one-year minimum requirement for every job.
+LLMs are used where semantic interpretation is useful:
 
-## Multi-source discovery
+- interpreting natural-language requirements
+- extracting structured job information
+- analyzing role relevance
+- distinguishing required vs. preferred qualifications
+- interpreting incomplete job evidence
+- producing evidence and concerns
 
-Current discovery combines **Arbeitnow** and **Tavily-powered web search**. Web search can discover direct listings hosted on platforms such as Greenhouse, Lever, and Ashby.
+This separation makes the system easier to debug, test, replace, and extend.
 
-## Search-query generation
+## Unknown is different from No
 
-The search strategy generates multiple queries from structured requirements, for example:
+A major design principle is preserving uncertainty.
+
+For example:
+
+- If a listing explicitly says `SQL required` → SQL evidence exists.
+- If a listing explicitly says `SQL not required` → there is contradictory evidence.
+- If the available snippet says nothing about SQL → SQL status is unknown.
+
+Likewise:
+
+- `visa sponsorship confirmed`
+- `visa sponsorship unavailable`
+- `visa sponsorship not mentioned`
+
+are different states.
+
+The system should not turn missing information into a false negative.
+
+---
+
+# Current capabilities
+
+### Natural-language requirements
+
+The requirement parser can extract information such as:
+
+- role
+- location
+- remote/hybrid preference
+- experience
+- employment type
+- skills
+- salary range
+- applicant country
+- visa requirements
+- keywords
+
+### Candidate profiles
+
+Candidate information is represented separately from job requirements.
+
+For example:
+
+```text
+I have 1 year of experience.
+```
+
+describes the candidate's experience. It does not automatically mean that every job must require exactly one year.
+
+The candidate model can contain:
+
+- experience
+- skills
+- education
+- current country
+- desired locations
+- desired employment types
+
+### Multi-source discovery
+
+The current discovery layer combines:
+
+- Arbeitnow
+- Tavily-powered web search
+
+Tavily can surface direct vacancies hosted on platforms such as:
+
+- Greenhouse
+- Lever
+- Ashby
+
+The discovery layer is designed to prefer actual job listings rather than generic career advice or job-search articles.
+
+### Search strategy
+
+Structured requirements are converted into multiple search queries.
+
+For example:
 
 ```text
 remote junior data analyst jobs India
 remote data analyst Excel SQL jobs India
 remote data analyst jobs India
+data analyst jobs India
 ```
 
-## Normalization
+Multiple queries increase recall while later stages handle deduplication and filtering.
 
-Different sources expose different field names and formats. The normalization layer converts them into the project's common `Job` model.
+### Normalization
 
-## URL cleaning
+Different sources expose different schemas.
 
-Markdown-wrapped and embedded URLs are converted into usable application URLs when possible.
+The normalizer converts them into the common `Job` model so downstream code does not need to understand every source's proprietary fields.
 
-## Deduplication
+### URL cleaning
 
-Repeated results from different searches are deduplicated, primarily using the job URL.
+The project handles URLs that may arrive wrapped in Markdown or surrounded by other text.
 
-## Hard filtering
+The goal is to produce a usable application URL before the job enters the rest of the pipeline.
 
-Clear constraints such as location and required remote status are applied before expensive AI analysis.
+### Deduplication
 
-### Missing skill evidence is not automatically a mismatch
+Jobs discovered through multiple searches or providers are deduplicated, primarily using their normalized URL.
 
-A short search snippet that does not mention SQL does not prove that SQL is not required. Therefore missing skill evidence is handled differently from an explicit contradiction, and detailed skill assessment is deferred to analysis.
+### Hard filtering
 
-## Preliminary scoring
+Explicit constraints are applied before expensive AI processing.
 
-Jobs are deterministically scored before LLM analysis. Only the strongest candidates proceed to expensive enrichment and AI analysis.
+Examples include:
 
-## Job-page enrichment
+- requested location
+- mandatory remote status
+- employment type
+- other clearly verifiable requirements
 
-For selected candidates, the system attempts to retrieve the actual job page and extract useful sections such as responsibilities, qualifications, requirements, skills, experience, salary, and compensation.
+### Preliminary scoring
 
-## AI analysis
+Surviving jobs receive deterministic preliminary scores.
 
-The analyzer extracts structured information including role relevance, required/preferred skills, experience, employment type, remote status, international eligibility, visa sponsorship, salary, evidence, and concerns.
+Only the strongest candidates proceed to the expensive enrichment and AI stages.
 
-## Final ranking
+This is both a ranking strategy and an API-cost strategy.
 
-The analyzed jobs are ranked using the richer structured information.
+### Job-page enrichment
+
+Selected jobs can be fetched directly when possible.
+
+The enrichment layer attempts to extract useful job-page content such as:
+
+- responsibilities
+- requirements
+- qualifications
+- skills
+- experience
+- salary
+- compensation
+- benefits
+
+If a website blocks automated access, the pipeline keeps the discovery data instead of treating the whole search as a failure.
+
+### AI job analysis
+
+The analyzer returns structured information including:
+
+- role relevance
+- required experience
+- required skills
+- preferred skills
+- employment type
+- remote status
+- remote scope
+- international eligibility
+- visa sponsorship
+- salary
+- evidence
+- concerns
+
+The analyzer is explicitly instructed not to invent missing information.
+
+### Final ranking
+
+The ranking stage uses the richer information available after analysis to produce the final ordered results.
 
 ---
 
 # Architecture
 
-The core pipeline is:
+The system can be understood as six logical layers.
+
+## 1. Input and interpretation
 
 ```text
-User Query
-  -> Requirement Parser
-  -> Candidate Profile + Job Requirements
-  -> Search Strategy
-  -> Job Discovery
-  -> Normalization / Deduplication
-  -> Hard Filtering
-  -> Preliminary Scoring
-  -> Top Candidate Selection
-  -> Job-Page Enrichment
-  -> AI Analysis
-  -> Final Ranking
-  -> Formatting
+User request
+    |
+    v
+Requirement parser
+    |
+    +--> JobRequirements
+    |
+    +--> CandidateProfile
 ```
 
-The project is intentionally modular. Search, enrichment, analysis, scoring, and formatting can be changed independently.
+The parser turns natural language into objects that the rest of the application can work with.
+
+## 2. Discovery
+
+```text
+JobRequirements
+      |
+      v
+Search strategy
+      |
+      +--> Arbeitnow
+      |
+      +--> Tavily web search
+```
+
+Discovery is intentionally separated from matching.
+
+## 3. Data normalization
+
+```text
+Raw source data
+      |
+      v
+Source normalizer
+      |
+      v
+Common Job model
+      |
+      v
+Deduplication
+```
+
+This prevents provider-specific schemas from leaking into the rest of the application.
+
+## 4. Candidate reduction
+
+```text
+Normalized jobs
+      |
+      v
+Hard filters
+      |
+      v
+Preliminary scoring
+      |
+      v
+Top candidates
+```
+
+This stage should be inexpensive and deterministic.
+
+## 5. AI-assisted enrichment and analysis
+
+```text
+Top candidates
+      |
+      v
+Job-page enrichment
+      |
+      v
+Structured AI analysis
+```
+
+Only a small number of jobs should reach this stage.
+
+## 6. Ranking and presentation
+
+```text
+Analyzed jobs
+      |
+      v
+Final ranking
+      |
+      v
+Formatter
+      |
+      v
+Human-readable results
+```
 
 ---
 
-# Detailed Components
+# Project structure
 
-## 1. Requirement Parser
-
-Converts natural language into `JobRequirements` and `CandidateProfile` objects.
-
-## 2. Candidate Profile
-
-Stores information about the person searching, including experience, skills, education, current country, desired locations, and desired employment types.
-
-## 3. Search Strategy
-
-Builds search queries but does not execute searches. This keeps query construction independent from search providers.
-
-## 4. Job Discovery
-
-Coordinates Arbeitnow and web discovery, normalizes returned jobs, and deduplicates them.
-
-## 5. Web Discovery
-
-Uses Tavily to search for real job opportunities and an LLM to convert search results into structured job data. It attempts to avoid generic career advice, news, salary articles, and non-vacancy pages.
-
-## 6. Job Normalization
-
-Converts source-specific dictionaries into the common `Job` model.
-
-Typical fields include:
-
-```text
-title
-company
-location
-remote
-remote_scope
-url
-source
-description
-visa_sponsorship
-remote_evidence
-tags
-job_types
-source_evidence
-```
-
-## 7. Deduplication
-
-Uses job URLs as the primary identity key so the same vacancy found through multiple queries is not returned repeatedly.
-
-## 8. Hard Requirement Filtering
-
-Rejects jobs that clearly violate explicit constraints such as location or mandatory remote work.
-
-## 9. Preliminary Scoring
-
-Ranks surviving jobs deterministically so expensive AI processing is reserved for the strongest candidates.
-
-## 10. Candidate Selection
-
-`analysis_limit` controls how many jobs proceed to enrichment and AI analysis.
-
-Example:
-
-```python
-run_job_search(query, analysis_limit=5)
-```
-
-## 11. Job-Page Enrichment
-
-`job_enricher.py` attempts to fetch a selected job page, remove scripts/styles/HTML, decode text, identify relevant job sections, and add the resulting text to `Job.description`.
-
-The extractor looks for sections such as:
-
-```text
-About the Role
-Job Description
-Responsibilities
-What You'll Do
-What We're Looking For
-Requirements
-Qualifications
-Skills
-Experience
-Benefits
-Salary
-Compensation
-```
-
-If a page cannot be retrieved, the original discovery data is retained.
-
-## 12. AI Job Analysis
-
-The analyzer produces a structured `JobAnalysis` and is instructed not to invent missing information. It distinguishes remote/hybrid/onsite/unclear and confirmed/not-confirmed/unclear states where appropriate.
-
-## 13. Final Ranking
-
-The ranking stage combines deterministic and AI-derived information to produce the final ordered jobs.
-
-## 14. Result Formatting
-
-The formatter creates human-readable results containing score, confidence, location, remote status, source, reasons, concerns, and an application URL.
-
----
-
-# Design Principles
-
-## Do not let the LLM do everything
-
-Use deterministic logic for reliable tasks such as deduplication, basic filtering, query generation, normalization, and preliminary scoring. Use LLMs for semantic interpretation.
-
-## Unknown is different from No
-
-If SQL is not present in a short snippet, that does not prove SQL is not required. Likewise, if visa sponsorship is not mentioned, that does not prove sponsorship is unavailable. The system tries to preserve uncertainty explicitly.
-
-## Minimize unnecessary API usage
-
-The architecture narrows a large result set before expensive LLM calls:
-
-```text
-Many jobs -> filtering -> preliminary scoring -> small candidate set -> enrichment -> LLM analysis
-```
-
-## Separate acquisition from analysis
-
-Discovery, normalization, filtering, enrichment, analysis, and ranking are separate stages so they can be tested and replaced independently.
-
-## Fail gracefully
-
-External services can return 403s, timeouts, incomplete data, invalid responses, or rate limits. A failure involving one job should not unnecessarily terminate the entire workflow.
-
----
-
-# Project Structure
+The repository currently uses a flat Python module structure:
 
 ```text
 job-research-agent/
 |
 |-- analyzer.py
+|-- deduplicator.py
+|-- discovery.py
+|-- filters.py
 |-- formatter.py
+|-- inspect_api.py
+|-- job_analyzer.py
 |-- job_discovery.py
 |-- job_enricher.py
+|-- job_relevance.py
 |-- job_search.py
+|-- llm_client.py
 |-- match_scorer.py
+|-- matcher.py
 |-- models.py
 |-- normalizer.py
 |-- orchestrator.py
@@ -420,94 +433,112 @@ job-research-agent/
 |-- requirement_parser.py
 |-- requirements.py
 |-- requirements_filter.py
-|
+|-- search_strategy.py
+|-- tools.py
+|-- url_cleaner.py
 |-- web_discovery.py
 |-- web_normalizer.py
 |
-|-- search/
-|   `-- search_strategy.py
-|
-|-- llm/
-|   `-- llm_client.py
-|
-|-- test_url_cleaner.py
-|-- test_tavily_search.py
-|-- test_tavily_domains.py
-|-- test_job_discovery_integration.py
-|-- test_job_enricher.py
-|-- test_orchestrator_mock.py
-|-- test_orchestrator.py
+|-- test_*.py
 |
 |-- .env.example
 |-- .gitignore
+|-- LICENSE
 |-- README.md
-`-- LICENSE
+`-- requirements.txt
 ```
 
-The exact structure may evolve as the project develops.
+The project is intentionally modular even though the current repository is flat. The modules are separated by responsibility rather than being placed into a package hierarchy prematurely.
 
 ---
 
-# Technology Stack
+# Important modules
 
-### Programming
-
-- Python
-- Dataclasses
-- Type hints
-- Standard Python libraries
-
-### Web / Data
-
-- Tavily
-- Requests
-- HTTP APIs
-- JSON
-- HTML-to-text processing
-- Regular expressions
-
-### AI
-
-- Groq
-- OpenAI-compatible LLM interfaces
-- Structured JSON generation
-
-### Engineering
-
-- Modular architecture
-- Deterministic filtering
-- Multi-stage ranking
-- LLM-based semantic extraction
-- Job-page enrichment
-- Integration testing
+| Module | Responsibility |
+|---|---|
+| `orchestrator.py` | Coordinates the complete job-search workflow |
+| `requirement_parser.py` | Converts user requests into requirements and candidate data |
+| `requirements.py` | Defines structured requirement/profile models |
+| `search_strategy.py` | Builds discovery queries |
+| `job_discovery.py` | Combines discovery sources |
+| `job_search.py` | Handles job-source/API retrieval |
+| `web_discovery.py` | Performs Tavily-based web discovery and structured extraction |
+| `normalizer.py` | Normalizes source-specific job data |
+| `web_normalizer.py` | Normalizes web-discovered job data |
+| `deduplicator.py` | Removes duplicate jobs |
+| `requirements_filter.py` | Applies hard requirements |
+| `match_scorer.py` | Performs preliminary/final matching calculations |
+| `job_enricher.py` | Retrieves and extracts job-page content |
+| `analyzer.py` | Produces structured AI job analysis |
+| `llm_client.py` | Provides the shared LLM interface/fallback layer |
+| `ranker.py` | Produces final ranking |
+| `formatter.py` | Formats results for humans |
+| `models.py` | Defines common dataclasses |
+| `test_*.py` | Unit, integration, mock, and provider-oriented tests |
 
 ---
 
-# Requirements
+# Technology stack
 
-Recommended:
+## Core
 
 - Python 3.10+
-- Git
-- Internet access
-- Tavily API key
-- Groq API key
-- OpenAI API key if the configured fallback layer uses it
+- Python dataclasses
+- Type hints
+- Standard library modules
 
-Provider configuration may evolve over time.
+## Web and data
+
+- `requests`
+- Tavily
+- HTTP APIs
+- JSON
+- HTML/text extraction
+- Regular expressions
+
+## AI
+
+- OpenAI Agents SDK
+- Groq
+- OpenAI
+- Structured JSON generation
+- LLM provider fallback logic
+
+## Engineering
+
+- Modular pipeline architecture
+- Deterministic filtering
+- Multi-stage ranking
+- Job-page enrichment
+- Mock and integration testing
+- Environment-based configuration
+- Git/GitHub
 
 ---
 
 # Installation
 
+## Prerequisites
+
+You need:
+
+- Python 3.10 or newer
+- Git
+- Internet access
+- A Tavily API key
+- A Groq API key
+- An OpenAI API key if your configured fallback path uses OpenAI
+
+The project depends on external services, so API availability and provider limits can affect live searches.
+
 ## 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/job-research-agent.git
+git clone https://github.com/krishna93175/job-research-agent.git
 cd job-research-agent
 ```
 
-Replace `YOUR_USERNAME` with the repository owner or your fork.
+If you are contributing through a fork, replace the URL with your fork.
 
 ## 2. Create a virtual environment
 
@@ -515,7 +546,7 @@ Replace `YOUR_USERNAME` with the repository owner or your fork.
 
 ```powershell
 python -m venv .venv
-.venv\\Scripts\\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 ```
 
 ### macOS / Linux
@@ -531,15 +562,23 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-If a dependency is missing during development, install it into the active virtual environment.
+## 4. Configure environment variables
 
----
+Copy the example file:
 
-# Environment Variables
+### Windows PowerShell
 
-Create `.env` from `.env.example`.
+```powershell
+Copy-Item .env.example .env
+```
 
-Example:
+### macOS / Linux
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env`:
 
 ```env
 TAVILY_API_KEY=your_tavily_api_key
@@ -547,13 +586,36 @@ GROQ_API_KEY=your_groq_api_key
 OPENAI_API_KEY=your_openai_api_key
 ```
 
-Never commit the real `.env` file or API keys. Keep credentials in local environment variables and keep `.env` ignored by Git.
+Never commit the real `.env` file.
 
 ---
 
-# Running the Project
+# Dependency manifest
 
-The complete workflow can be executed through the orchestrator:
+The repository includes `requirements.txt` so a new developer does not need to reconstruct the development environment manually.
+
+Current direct dependencies include:
+
+```text
+python-dotenv
+requests
+tavily-python
+groq
+openai
+openai-agents
+```
+
+The dependency list should be updated when the project introduces new third-party imports.
+
+For reproducible development, a future improvement is to add pinned or constrained dependency versions after the project establishes a tested release environment.
+
+---
+
+# Running the project
+
+The main workflow is exposed through the orchestrator.
+
+Example:
 
 ```python
 from orchestrator import run_job_search
@@ -567,31 +629,47 @@ result = run_job_search(
 print(result)
 ```
 
-The repository also contains an end-to-end test workflow:
+For the current repository, the end-to-end test is also a useful way to exercise the workflow:
 
 ```powershell
 python test_orchestrator.py
 ```
 
+The mock orchestrator test avoids depending on a live job-search/LLM result:
+
+```powershell
+python test_orchestrator_mock.py
+```
+
 ---
 
-# Understanding the Output
+# Understanding the output
 
-A normal run can contain stages such as:
+A typical workflow reports stages similar to:
 
 ```text
 PARSED REQUIREMENTS
-...
+
+JobRequirements(
+    role='Data Analyst',
+    location='India',
+    remote_required=True,
+    ...
+)
 
 CANDIDATE PROFILE
-...
+
+CandidateProfile(
+    experience_years=1,
+    skills=['Excel', 'SQL'],
+    ...
+)
 
 Jobs discovered: 180
 Jobs after filtering: 2
 Jobs selected for AI analysis: 1
 
 Fetching job pages for 1 selected jobs...
-Fetching: Junior Data Analyst — Example Company
 
 1. Junior Data Analyst — Example Company
    Match: 82/100
@@ -599,15 +677,28 @@ Fetching: Junior Data Analyst — Example Company
    Location: India
    Remote: True
    Source: Lever
+
+   Why it matches:
+   - Requested role matches.
+   - Location matches.
+   - Remote work is supported.
+
+   Concerns:
+   - Salary is not provided.
+   - Visa sponsorship is not confirmed.
+
+   Apply: https://example.com/job
 ```
 
-Exact results vary because job availability and web search results are dynamic.
+Live output will vary because job listings, search results, external APIs, and job-page availability change over time.
 
 ---
 
 # Testing
 
-Run focused tests individually:
+The repository contains focused tests covering different layers of the application.
+
+Examples:
 
 ```powershell
 python test_url_cleaner.py
@@ -619,77 +710,144 @@ python test_orchestrator_mock.py
 python test_orchestrator.py
 ```
 
-### What they cover
+There are also tests covering:
 
-- `test_url_cleaner.py` — URL normalization
-- `test_tavily_search.py` — Tavily discovery and structured extraction
-- `test_tavily_domains.py` — job-hosting/ATS discovery behavior
-- `test_job_discovery_integration.py` — discovery and normalization integration
-- `test_job_enricher.py` — direct job-page extraction
-- `test_orchestrator_mock.py` — controlled orchestration behavior
-- `test_orchestrator.py` — end-to-end workflow
+- requirements parsing
+- requirements filtering
+- deduplication
+- discovery
+- discovery merging
+- scoring
+- ranking
+- formatter behavior
+- analyzer parsing
+- analyzer behavior
+- URL normalization
+- web normalization
+- enrichment
+- mock pipelines
+- Tavily discovery
 
-For a release or fresh setup, run the suite from a clean terminal and investigate failures individually.
+## Recommended validation for contributors
+
+After changing code:
+
+1. Run the focused test for the changed module.
+2. Run `test_orchestrator_mock.py`.
+3. Run the relevant integration tests.
+4. If API-dependent behavior changed, run the relevant live test separately.
+5. Review the Git diff before committing.
+
+A clean test result is useful evidence, but live search behavior can still vary because external services are dynamic.
 
 ---
 
-# Error Handling
+# Error handling and failure modes
+
+External services are unreliable. The project is designed to degrade where possible rather than treating every external failure as a fatal application error.
 
 ## HTTP 403
 
-Some websites block automated requests. The enrichment layer catches the failure and keeps the existing discovery data.
+Some job websites block automated requests.
 
-## Search API failure
+When a selected job page cannot be fetched, enrichment should preserve the information already obtained during discovery.
 
-A source failure is handled without unnecessarily terminating the complete workflow.
+## Timeouts
 
-## LLM failure
+Search and job-page requests can time out.
 
-LLM providers can return rate-limit, token-limit, validation, or service errors. The shared provider layer and surrounding pipeline are designed to handle failures without treating every external error as a program crash.
+The discovery layer attempts to continue with other available sources when a provider fails.
 
-## Missing fields
+## LLM rate limits and token limits
 
-Missing information remains missing rather than being fabricated.
+LLM providers can reject requests because of:
 
-## Incomplete snippets
+- tokens-per-minute limits
+- request limits
+- context size
+- provider availability
+- validation errors
 
-Search snippets may be too short for meaningful analysis, which is why selected jobs are passed through page enrichment before AI analysis when possible.
+The architecture reduces unnecessary LLM usage by filtering and preliminarily scoring jobs before AI analysis.
+
+## Missing information
+
+Missing information is retained as missing.
+
+The analyzer should not invent:
+
+- salary
+- visa sponsorship
+- experience
+- international eligibility
+- skills
+- employment type
+
+when the listing does not support those claims.
 
 ---
 
-# Known Limitations
+# Limitations
 
-This is an active open-source learning project, not a perfect job database.
-
-### Job-page access
-
-Some websites block automated requests or require browser execution. Enrichment cannot guarantee access to every vacancy.
-
-### Search quality
-
-Search engines and aggregators may return duplicate, expired, incomplete, generic, or non-direct listings. The system attempts to prioritize better sources but cannot guarantee perfect source quality.
+This is an active open-source engineering project, not a guaranteed job database.
 
 ### Job freshness
 
-The system does not guarantee that every listing is still accepting applications. Users should verify the vacancy on the original employer or job platform.
+A discovered vacancy may have closed after it was indexed.
 
-### AI analysis
+Always verify the application page before applying.
 
-LLM analysis can be wrong. The analyzer is designed to use evidence and preserve uncertainty, but it should not replace human verification.
+### Search quality
 
-### International eligibility
+Search engines and aggregators may return:
 
-Remote does not automatically mean globally remote. Country restrictions may not be obvious in a search result.
+- duplicate listings
+- expired listings
+- generic career pages
+- search/category pages
+- incomplete listings
+- inaccurate snippets
 
-### Visa sponsorship
+The pipeline attempts to reduce these problems but cannot guarantee perfect source quality.
 
-Absence of a sponsorship statement does not prove sponsorship is unavailable. The system uses `not_confirmed` when appropriate.
+### Automated page access
+
+Some websites:
+
+- block automated clients
+- require JavaScript
+- require browser execution
+- use bot protection
+- return incomplete HTML
+
+The enrichment layer cannot guarantee access to every vacancy.
+
+### Remote does not mean globally remote
+
+A listing marked `Remote` may still restrict workers to:
+
+- a particular country
+- a region
+- a time zone
+- a legal entity's employment countries
+
+International eligibility therefore requires separate evidence.
+
+### AI analysis is not authoritative
+
+LLM analysis can be wrong.
+
+The analyzer is designed to preserve evidence and uncertainty, but users should verify important information against the original job listing.
+
+### API costs and limits
+
+Tavily, Groq, OpenAI, and other external services have their own quotas, rate limits, pricing, and availability.
 
 ---
 
 # Security
 
-This repository is intended to be public/open source, so credential handling is critical.
+Because this is a public repository, credential handling is critical.
 
 Never commit:
 
@@ -697,59 +855,64 @@ Never commit:
 .env
 ```
 
-or real API credentials inside source code, tests, documentation, or examples.
+or actual API keys inside:
 
-Use `.env.example` for variable names only.
+- Python source
+- tests
+- documentation
+- screenshots
+- example output
+- configuration files
 
-Before publishing, check:
+Use:
+
+```text
+.env.example
+```
+
+for variable names only.
+
+Before pushing changes, check:
 
 ```powershell
 git status
-git ls-files
+git diff --cached
 ```
 
-Make sure `.env` is not tracked and no credentials appear in tracked files.
-
-If a real secret has ever been committed to a public repository, treat it as compromised and rotate/revoke it.
+If a real API key is ever committed to a public repository, treat it as compromised and rotate/revoke it immediately.
 
 ---
 
-# Extending the Project
+# Extending the project
 
-The architecture is intended to allow independent extensions.
+The project is designed so contributors can improve individual stages without rewriting the whole application.
 
-A new source can follow:
+## Add a new job source
+
+A new source should ideally follow:
 
 ```text
-External Source
+External source
       |
       v
-    Fetch
+Source-specific fetcher
       |
       v
- Raw Job Data
+Raw job data
       |
       v
- Normalize
+Source-specific normalizer
       |
       v
-  Job Model
+Common Job model
       |
       v
-Existing Pipeline
+Existing pipeline
 ```
 
-A new ranking method can operate on the existing normalized jobs without rewriting discovery.
+The rest of the system should not need to understand a provider's proprietary schema.
 
-A new LLM provider can be introduced behind the shared LLM interface without changing the job-discovery layer.
-
----
-
-# Adding a New Job Source
-
-A new provider should ideally have source-specific fetching and normalization code. Do not force the rest of the application to understand the provider's proprietary schema.
-
-For example, if a source returns:
+For example, if a provider returns:
 
 ```json
 {
@@ -759,21 +922,17 @@ For example, if a source returns:
 }
 ```
 
-its adapter should convert this into the project's standard `Job` representation.
+its adapter should convert that into the project's standard `Job` representation.
 
----
+## Add a new LLM provider
 
-# Replacing the LLM Provider
+The analysis layer is separated from discovery, filtering, normalization, enrichment, and ranking.
 
-The AI layer is separated from discovery, filtering, normalization, enrichment, and ranking.
+A contributor should be able to add or replace an LLM provider behind the shared interface rather than rewriting the entire pipeline.
 
-This makes it possible to experiment with different LLMs or providers without rewriting the rest of the application.
+## Change the ranking system
 
----
-
-# Improving Ranking
-
-The ranking architecture separates:
+The ranking architecture intentionally separates:
 
 ```text
 Preliminary deterministic score
@@ -785,22 +944,210 @@ from:
 Final AI-assisted analysis
 ```
 
-Future ranking work could incorporate:
+Potential future signals include:
 
 - skill similarity
 - experience compatibility
 - salary preferences
 - location preferences
-- company preferences
 - source quality
 - evidence quality
 - confidence penalties
-- semantic similarity / embeddings
+- semantic similarity
 - resume-to-job similarity
+
+## Build a user interface
+
+The current orchestration layer can be used as the backend of a future:
+
+- CLI
+- web application
+- desktop application
+- API
+- dashboard
+
+The project does not currently require a UI, which keeps the core research pipeline relatively easy to inspect and modify.
+
+---
+
+# Contributing
+
+Contributions are welcome.
+
+Useful contribution areas include:
+
+- new job sources
+- ATS-specific extraction
+- better job-page enrichment
+- improved ranking
+- better skill matching
+- better international eligibility detection
+- tests
+- prompt improvements
+- provider integrations
+- documentation
+- error handling
+- performance improvements
+- output formats
+- UI development
+
+## Suggested workflow
+
+Fork the repository and create a branch:
+
+```bash
+git checkout -b feature/my-improvement
+```
+
+Make a focused change.
+
+Run the relevant tests.
+
+Review your diff:
+
+```bash
+git diff
+```
+
+Commit:
+
+```bash
+git add .
+git commit -m "Add my improvement"
+```
+
+Push your branch:
+
+```bash
+git push -u origin feature/my-improvement
+```
+
+Then open a pull request.
+
+For substantial architectural changes, open an issue first so the proposed approach can be discussed before significant implementation work begins.
+
+---
+
+# Learning and engineering goals
+
+This project is intentionally also a practical learning project.
+
+## Python
+
+- modular application design
+- dataclasses
+- type hints
+- exception handling
+- API clients
+- module organization
+
+## AI engineering
+
+- LLM integration
+- prompt design
+- structured JSON output
+- provider abstraction
+- token management
+- fallback providers
+- AI-assisted ranking
+
+## Agent architecture
+
+- multi-stage workflows
+- tool/API integration
+- deterministic + probabilistic components
+- context management
+- candidate selection
+- external data acquisition
+- failure recovery
+
+## Web and data engineering
+
+- search APIs
+- HTTP requests
+- HTML extraction
+- URL processing
+- normalization
+- deduplication
+
+## Software engineering
+
+- modular architecture
+- integration testing
+- mock testing
+- debugging
+- rate-limit handling
+- configuration management
+- Git/GitHub workflows
+
+## Open source
+
+- documentation
+- repository organization
+- reproducibility
+- contribution workflows
+- credential security
+- public code quality
+
+The goal is not only to demonstrate an AI feature, but to demonstrate the engineering required to build, test, document, and maintain an AI-powered application.
+
+---
+
+# Open-source philosophy
+
+This project is intended to remain open source and accessible.
+
+You are encouraged to:
+
+- fork it
+- study it
+- modify it
+- replace components
+- add new sources
+- experiment with LLM providers
+- improve prompts
+- improve ranking
+- add tests
+- build a UI
+- submit pull requests
+
+The architecture is deliberately modular so that a contributor can work on one part without first understanding every part of the system.
+
+For example:
+
+```text
+Discovery contributor
+    |
+    +-- job_discovery.py
+    +-- web_discovery.py
+    +-- job_search.py
+    +-- search_strategy.py
+
+AI contributor
+    |
+    +-- analyzer.py
+    +-- llm_client.py
+
+Matching contributor
+    |
+    +-- requirements_filter.py
+    +-- match_scorer.py
+    +-- ranker.py
+
+Enrichment contributor
+    |
+    +-- job_enricher.py
+
+Testing contributor
+    |
+    +-- test_*.py
+```
 
 ---
 
 # Roadmap
+
+The roadmap is intentionally open-ended.
 
 ## Discovery
 
@@ -828,16 +1175,16 @@ Future ranking work could incorporate:
 - [ ] Semantic skill similarity
 - [ ] Salary normalization
 
-## International Jobs
+## International jobs
 
 - [ ] Better country eligibility detection
 - [ ] Better visa sponsorship detection
 - [ ] Remote-country restriction detection
 - [ ] Work authorization analysis
 
-## User Experience
+## User experience
 
-- [ ] CLI interface
+- [ ] Dedicated CLI
 - [ ] Web interface
 - [ ] Saved searches
 - [ ] Job history
@@ -849,264 +1196,44 @@ Future ranking work could incorporate:
 ## Engineering
 
 - [ ] More automated tests
-- [ ] Improved logging/observability
-- [ ] Docker support
 - [ ] CI/CD
-- [ ] Contribution guidelines
-- [ ] Plugin/source architecture
+- [ ] Better logging and observability
+- [ ] Docker support
+- [ ] Source/plugin architecture
 - [ ] Better configuration management
+- [ ] Contribution templates
 
 ---
 
-# Contributing
+# Project status
 
-Contributions are welcome.
+This repository should be considered an **active v1 open-source engineering project**.
 
-Useful contribution areas include:
+The core research pipeline is implemented and tested, but the project is still evolving. External job sources, search behavior, LLM providers, and job-page structures can change independently of the codebase.
 
-- New job sources
-- Better job-page extraction
-- Better ranking algorithms
-- Tests
-- Prompt improvements
-- Documentation
-- Bug fixes
-- Output formats
-- International eligibility detection
-- Error handling
-- Performance improvements
-
-Suggested workflow:
-
-```bash
-git checkout -b feature/my-improvement
-```
-
-Make the change, run relevant tests, then:
-
-```bash
-git add .
-git commit -m "Add my improvement"
-git push
-```
-
-For larger architectural changes, open an issue first to discuss the approach.
-
----
-
-# Learning Goals
-
-This project is intentionally being developed as a practical learning project.
-
-### Python
-
-- Modular application structure
-- Dataclasses
-- Type hints
-- Exception handling
-- API clients
-- Module organization
-
-### AI Engineering
-
-- LLM integration
-- Prompt engineering
-- Structured JSON generation
-- Provider abstraction
-- Token management
-- Fallback providers
-- AI-assisted ranking
-
-### Agent Architecture
-
-- Multi-stage workflows
-- Tool/API integration
-- Deterministic + probabilistic components
-- Context management
-- Candidate selection
-- External data acquisition
-- Failure recovery
-
-### Web and Data
-
-- Search APIs
-- HTTP requests
-- HTML extraction
-- URL processing
-- Normalization
-- Deduplication
-
-### Software Engineering
-
-- Modular architecture
-- Integration tests
-- Mock testing
-- Debugging
-- API rate-limit handling
-- Configuration management
-- Git/GitHub workflows
-
-### Open Source
-
-- Documentation
-- Repository organization
-- Contribution workflows
-- Reproducibility
-- Public code quality
-- Credential security
-
-The goal is to demonstrate not only an AI feature, but the engineering process required to build and maintain an AI-powered application.
-
----
-
-# Open Source Philosophy
-
-The project is intended to remain open source and accessible to developers who want to learn from it, modify it, or build on it.
-
-You are encouraged to:
-
-- Fork it
-- Experiment with it
-- Replace components
-- Add new sources
-- Try different LLMs
-- Improve prompts
-- Build a UI
-- Improve ranking
-- Add tests
-- Submit pull requests
-
-The architecture is deliberately modular so that a contributor can work on one area without first understanding the entire codebase.
-
-For example:
-
-```text
-Search contributor
-    -> search/
-    -> web_discovery.py
-    -> job_discovery.py
-
-AI contributor
-    -> analyzer.py
-    -> llm/
-
-Matching contributor
-    -> match_scorer.py
-    -> ranker.py
-    -> requirements_filter.py
-
-Web extraction contributor
-    -> job_enricher.py
-    -> web_normalizer.py
-```
+The goal is to improve the architecture incrementally while keeping the project understandable and useful to contributors.
 
 ---
 
 # Disclaimer
 
-This project is a research and learning tool.
+This project is provided for research, experimentation, and educational purposes.
 
 It does not guarantee:
 
-- job availability
-- application success
-- accuracy of job descriptions
-- salary accuracy
-- visa sponsorship
-- international applicant eligibility
-- continued availability of listings
+- that a job is still open
+- that a listing is accurate
+- that a candidate is eligible
+- that remote work is available in a particular country
+- that visa sponsorship will be provided
+- that an AI-generated analysis is correct
 
-Always verify important information on the original employer or job-platform listing before applying.
-
-The agent should be treated as an assistant for job research, not as a replacement for human verification.
-
----
-
-# Author
-
-**G. Krishna Gopal**
-
-This project explores the intersection of:
-
-- Artificial intelligence
-- Software engineering
-- Data
-- Automation
-- Research
-- Career technology
-
-It is being developed both as an open-source tool and as a practical way to build engineering skills through a real, evolving application.
+Always verify important information on the original employer or job-platform listing before making an application or employment decision.
 
 ---
 
 # License
 
-This project is intended to use the **MIT License**.
+This project is licensed under the [MIT License](LICENSE).
 
-The MIT License permits use, modification, distribution, and derivative work subject to the license terms and preservation of the applicable copyright notice.
-
-See [`LICENSE`](LICENSE) for the complete license text.
-
----
-
-# New User Quick Start
-
-If you are new to the project, you do not need to understand the entire architecture before running it.
-
-Recommended path:
-
-```text
-1. Read this README
-        |
-        v
-2. Clone the repository
-        |
-        v
-3. Create a virtual environment
-        |
-        v
-4. Configure .env
-        |
-        v
-5. Run the tests
-        |
-        v
-6. Run test_orchestrator.py
-        |
-        v
-7. Read orchestrator.py
-        |
-        v
-8. Explore individual modules
-        |
-        v
-9. Modify one component
-        |
-        v
-10. Add a test
-        |
-        v
-11. Submit an improvement
-```
-
-The best way to understand the project is to follow the pipeline from beginning to end:
-
-```text
-User Request
-    -> Requirement Parser
-    -> Search Strategy
-    -> Job Discovery
-    -> Normalization
-    -> Filtering
-    -> Scoring
-    -> Enrichment
-    -> AI Analysis
-    -> Ranking
-    -> Results
-```
-
-Every stage exists for a specific reason and can be independently improved.
-
----
-
-**If you find the project useful, fork it, experiment with it, open an issue, or contribute improvements.**
+You are free to use, modify, distribute, and build upon the project subject to the terms of the license.

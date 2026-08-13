@@ -29,10 +29,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run tests
+      - name: Run deterministic tests
         run: |
           python test_url_cleaner.py
-          python test_requirements.py
           python test_requirements_filter.py
           python test_deduplicator.py
           python test_strategy.py
@@ -41,5 +40,4 @@ jobs:
           python test_ranker.py
           python test_formatter.py
           python test_job_discovery_integration.py
-          python test_job_enricher.py
           python test_orchestrator_mock.py
