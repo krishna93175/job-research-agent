@@ -29,16 +29,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run deterministic tests
+      - name: Run deterministic unit tests
         run: |
-          python test_url_cleaner.py
-          python test_requirements.py
-          python test_requirements_filter.py
-          python test_deduplicator.py
-          python test_strategy.py
-          python test_web_normalizer.py
-          python test_match_scorer.py
-          python test_ranker.py
-          python test_formatter.py
-          python test_job_discovery_integration.py
-          python test_orchestrator_mock.py
+          python -m tests.unit.test_analyzer_parser
+          python -m tests.unit.test_analyzer_static
+          python -m tests.unit.test_deduplicator
+          python -m tests.unit.test_dynamic_scoring
+          python -m tests.unit.test_formatter
+          python -m tests.unit.test_job_enricher
+          python -m tests.unit.test_match_scorer
+          python -m tests.unit.test_ranker
+          python -m tests.unit.test_requirements
+          python -m tests.unit.test_requirements_filter
+          python -m tests.unit.test_scorer_with_analysis
+          python -m tests.unit.test_strategy
+          python -m tests.unit.test_url
+          python -m tests.unit.test_url_cleaner
+          python -m tests.unit.test_web_normalizer
+
+      - name: Run deterministic integration tests
+        run: |
+          python -m tests.integration.test_discovery_merge
+          python -m tests.integration.test_job_discovery_integration
+          python -m tests.integration.test_mock_pipeline

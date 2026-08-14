@@ -1,3 +1,5 @@
+import json
+
 from analyzer import parse_analysis
 
 
@@ -38,9 +40,8 @@ fake_response = """
 
 
 analysis = parse_analysis(
-    fake_response
+    json.loads(fake_response)
 )
-
 
 print("ANALYSIS")
 print("=" * 60)
