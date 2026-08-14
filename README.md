@@ -6,6 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/krishna93175/job-research-agent)](https://github.com/krishna93175/job-research-agent/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/krishna93175/job-research-agent)](https://github.com/krishna93175/job-research-agent/issues)
+[![Tests](https://github.com/krishna93175/job-research-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/krishna93175/job-research-agent/actions/workflows/tests.yml)
 
 ## Why this project exists
 
