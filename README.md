@@ -1,6 +1,6 @@
 # AI Job Research Agent
 
-> An open-source, modular AI-assisted job research agent that discovers, filters, enriches, analyzes, and ranks job opportunities against structured job requirements and a candidate profile.
+> An open-source, modular AI agent for discovering, filtering, enriching, analyzing, scoring, and ranking job opportunities against structured job requirements and a candidate profile.
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -10,23 +10,21 @@
 
 ## Why this project exists
 
-Most job-search workflows are repetitive:
+Job research is often repetitive and fragmented:
 
-1. Search several job platforms.
-2. Open listings.
-3. Check whether the role actually matches.
-4. Check location and remote restrictions.
-5. Check experience.
-6. Check skills.
-7. Check employment type.
-8. Investigate international eligibility and visa information.
-9. Compare the remaining jobs.
+1. Search across multiple sources.
+2. Open and inspect individual listings.
+3. Verify role, location, and remote eligibility.
+4. Check experience and skills.
+5. Check employment type and other constraints.
+6. Investigate missing or unclear information.
+7. Compare and rank the strongest opportunities.
 
-This project turns that research process into a modular pipeline.
+This project turns that process into a modular pipeline combining **deterministic software with LLM-based semantic analysis**.
 
-It is **not intended to be a perfect job database or an autonomous application bot**. It is an open-source engineering project for researching job opportunities with a combination of deterministic software and LLM-based semantic analysis.
+It is **not intended to be a perfect job database or an autonomous application bot**. External job sources change, listings can be incomplete, and some pages may be inaccessible. The system is instead designed as an open-source job-research agent that makes its evidence, filtering, analysis, and ranking process inspectable.
 
-The project is also designed as a learning and contribution platform. Developers should be able to inspect the code, run it, replace providers, add job sources, change ranking logic, improve prompts, add tests, or build a user interface on top of the existing pipeline.
+The project is also intended as an **open learning and contribution platform**. Developers can inspect the architecture, run the system locally, replace providers, add job sources, modify ranking logic, improve prompts, add tests, or build new interfaces on top of the existing pipeline.
 
 ---
 
