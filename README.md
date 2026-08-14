@@ -406,7 +406,7 @@ Human-readable results
 
 # Project structure
 
-The repository currently uses a flat Python module structure:
+The repository keeps the application modules flat, while tests are organized by execution type:
 
 ```text
 job-research-agent/
@@ -438,14 +438,22 @@ job-research-agent/
 |-- web_discovery.py
 |-- web_normalizer.py
 |
-|-- test_*.py
+|-- tests/
+|   |-- unit/
+|   |-- integration/
+|   `-- live/
+|
+|-- .github/
+|   |-- ISSUE_TEMPLATE/
+|   `-- workflows/
+|       `-- tests.yml
 |
 |-- .env.example
 |-- .gitignore
+|-- CONTRIBUTING.md
 |-- LICENSE
 |-- README.md
 `-- requirements.txt
-```
 
 The project is intentionally modular even though the current repository is flat. The modules are separated by responsibility rather than being placed into a package hierarchy prematurely.
 
@@ -473,7 +481,9 @@ The project is intentionally modular even though the current repository is flat.
 | `ranker.py` | Produces final ranking |
 | `formatter.py` | Formats results for humans |
 | `models.py` | Defines common dataclasses |
-| `test_*.py` | Unit, integration, mock, and provider-oriented tests |
+| `tests/unit/` | Deterministic component-level tests |
+| `tests/integration/` | Deterministic multi-component and pipeline tests |
+| `tests/live/` | Tests requiring external services, APIs, or live network access |
 
 ---
 
@@ -604,7 +614,7 @@ openai
 openai-agents
 ```
 
-The dependency list should be updated when the project introduces new third-party imports.
+The dependency list should be updated whenever the project introduces a new third-party dependency.
 
 For reproducible development, a future improvement is to add pinned or constrained dependency versions after the project establishes a tested release environment.
 
@@ -626,18 +636,6 @@ result = run_job_search(
 )
 
 print(result)
-```
-
-For the current repository, the end-to-end test is also a useful way to exercise the workflow:
-
-```powershell
-python test_orchestrator.py
-```
-
-The mock orchestrator test avoids depending on a live job-search/LLM result:
-
-```powershell
-python test_orchestrator_mock.py
 ```
 
 ---
@@ -695,27 +693,37 @@ Live output will vary because job listings, search results, external APIs, and j
 
 # Testing
 
-The repository contains focused tests covering different layers of the application.
+The test suite is organized by execution type.
+
+## Unit tests
+
+Deterministic component-level tests live under `tests/unit/`.
 
 Examples:
 
 ```powershell
-python test_url_cleaner.py
-python test_tavily_search.py
-python test_tavily_domains.py
-python test_job_discovery_integration.py
-python test_job_enricher.py
-python test_orchestrator_mock.py
-python test_orchestrator.py
+python -m tests.unit.test_analyzer_parser
+python -m tests.unit.test_analyzer_static
+python -m tests.unit.test_deduplicator
+python -m tests.unit.test_dynamic_scoring
+python -m tests.unit.test_formatter
+python -m tests.unit.test_job_enricher
+python -m tests.unit.test_match_scorer
+python -m tests.unit.test_ranker
+python -m tests.unit.test_requirements
+python -m tests.unit.test_requirements_filter
+python -m tests.unit.test_scorer_with_analysis
+python -m tests.unit.test_strategy
+python -m tests.unit.test_url
+python -m tests.unit.test_url_cleaner
+python -m tests.unit.test_web_normalizer
 ```
 
-There are also tests covering:
+The unit suite covers:
 
 - requirements parsing
 - requirements filtering
 - deduplication
-- discovery
-- discovery merging
 - scoring
 - ranking
 - formatter behavior
@@ -724,20 +732,48 @@ There are also tests covering:
 - URL normalization
 - web normalization
 - enrichment
-- mock pipelines
-- Tavily discovery
+- strategy behavior
+
+## Integration tests
+
+Deterministic multi-component tests live under `tests/integration/`.
+
+The integration suite covers:
+
+- discovery merging
+- job discovery integration
+- mock pipeline execution
+
+## Live tests
+
+Tests under `tests/live/` exercise external services such as LLMs, search providers, and live web discovery.
+
+These tests may require:
+
+- API credentials
+- internet access
+- available provider quota
+- currently available external services
+
+Live results can vary because external job listings, search results, and provider responses are dynamic.
+
+## CI
+
+GitHub Actions runs the deterministic unit and integration tests on pushes and pull requests.
+
+Live tests are intentionally excluded from CI because external API availability, credentials, quotas, and live search results are not deterministic.
 
 ## Recommended validation for contributors
 
 After changing code:
 
-1. Run the focused test for the changed module.
-2. Run `test_orchestrator_mock.py`.
-3. Run the relevant integration tests.
+1. Run the focused unit test for the changed module.
+2. Run the relevant integration test.
+3. Run the complete deterministic test suite before opening a pull request.
 4. If API-dependent behavior changed, run the relevant live test separately.
 5. Review the Git diff before committing.
 
-A clean test result is useful evidence, but live search behavior can still vary because external services are dynamic.
+A passing deterministic test suite provides evidence that the tested local code paths remain consistent. It does not guarantee that live providers or job listings will behave identically.
 
 ---
 
@@ -1139,7 +1175,10 @@ Enrichment contributor
 
 Testing contributor
     |
-    +-- test_*.py
+    +-- tests/
+        +-- unit/
+        +-- integration/
+        +-- live/
 ```
 
 ---
@@ -1148,61 +1187,59 @@ Testing contributor
 
 The roadmap is intentionally open-ended.
 
-## Discovery
+## Core functionality
 
-- [ ] Add more job APIs
-- [ ] Add more direct company career sources
-- [ ] Improve ATS detection
-- [ ] Improve direct-listing prioritization
-- [ ] Improve duplicate detection
+- [x] Requirement parsing
+- [x] Candidate profile extraction
+- [x] Multi-source job discovery
+- [x] Job normalization
+- [x] Duplicate detection
+- [x] Hard requirement filtering
+- [x] Preliminary job scoring
+- [x] Job-page enrichment
+- [x] AI-powered job analysis
+- [x] Final ranking
+- [x] Structured result formatting
 
-## Enrichment
+## Discovery and matching
 
-- [ ] Improve Greenhouse extraction
-- [ ] Improve Lever extraction
-- [ ] Improve Ashby extraction
-- [ ] Improve Workday extraction
-- [ ] Add browser-based retrieval where appropriate
-- [ ] Improve structured section extraction
-
-## Matching
-
-- [ ] Better skill matching
-- [ ] Better experience compatibility
-- [ ] Resume-to-job matching
-- [ ] Candidate-specific ranking preferences
-- [ ] Semantic skill similarity
-- [ ] Salary normalization
-
-## International jobs
-
-- [ ] Better country eligibility detection
-- [ ] Better visa sponsorship detection
-- [ ] Remote-country restriction detection
-- [ ] Work authorization analysis
-
-## User experience
-
-- [ ] Dedicated CLI
-- [ ] Web interface
-- [ ] Saved searches
-- [ ] Job history
-- [ ] Job alerts
-- [ ] CSV/JSON export
-- [ ] Resume upload
-- [ ] Personalized dashboards
+- [x] Tavily-based web discovery
+- [x] India-focused discovery support
+- [x] Remote-job filtering
+- [x] Employment-type filtering
+- [x] Experience matching
+- [x] Skill matching
+- [x] Location matching
+- [x] International eligibility handling
+- [x] Visa sponsorship uncertainty handling
+- [x] Evidence-aware job analysis
 
 ## Engineering
 
+- [x] Modular architecture
+- [x] Unit testing
+- [x] Integration testing
+- [x] Mock pipeline testing
+- [x] Deterministic CI testing
 - [ ] More automated tests
-- [ ] CI/CD
 - [ ] Better logging and observability
 - [ ] Docker support
 - [ ] Source/plugin architecture
 - [ ] Better configuration management
 - [ ] Contribution templates
 
----
+## Future improvements
+
+- [ ] More job sources
+- [ ] Improved job-page extraction
+- [ ] Better search-query generation
+- [ ] More robust ranking calibration
+- [ ] Persistent job storage
+- [ ] Job freshness detection
+- [ ] Historical search tracking
+- [ ] User preference persistence
+- [ ] Web interface
+- [ ] API interface
 
 # Project status
 
